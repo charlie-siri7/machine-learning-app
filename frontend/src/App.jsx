@@ -11,6 +11,27 @@ function App() {
     { rowid: 999, species: "penguin", island: "Antarctica"}, 
   ]);
   const [headers, setHeaders] = React.useState([]);
+  React.useEffect(() => {
+    // Only send if headers and data are not empty and headers are not the initial state
+    if (headers.length > 0 && data.length > 0) {
+      sendDataToBackend();
+    }
+    // eslint-disable-next-line
+  }, [headers, data]);
+  const sendDataToBackend = async () => {
+  const response = await fetch('http://localhost:8000/api/receive-data/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      data: data,
+      headers: headers,
+    }),
+  });
+  const result = await response.json();
+  console.log(result);
+};
   return (
         <div>
           <div className={`div1${hover ? " hovered" : ""}`}
@@ -37,6 +58,7 @@ function App() {
                   const result_data = parse(text, { header: true });
                   console.log("CSV Data:", result_data)
                   setData(existing => [...existing, ...result_data.data])
+                  sendDataToBackend();
                 });
             }}>
               Drop file here
