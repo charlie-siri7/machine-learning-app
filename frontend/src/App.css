@@ -54,3 +54,12 @@
 .div1.hovered {
   background-color: #606060;
 }
+
+.inline {
+  display: inline;
+  /* margin: 3px; */
+}
+
+.spaced {
+  margin: 5px;
+}
