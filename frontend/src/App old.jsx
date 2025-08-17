@@ -7,12 +7,17 @@ import { parse } from "papaparse";
 
 function App() {
   const [hover, setHover] = React.useState(false);
+  const [originalData, setOriginalData] = React.useState([]);
   const [data, setData] = React.useState([
     { rowid: 999, species: "penguin", island: "Antarctica"}, 
   ]);
   const [headers, setHeaders] = React.useState([]);
   const [file, setFile] = React.useState(null);
-  const [selectedColumn, setSelectedColumn] = React.useState("");
+  const [selectedColumn, setSelectedColumn] = React.useState("rowid");
+  const [selectedColumn2, setSelectedColumn2] = React.useState("rowid");
+  const [selectedSort, setSelectedSort] = React.useState("None");
+  const [rowOrCol, setRowOrCol] = React.useState("Row");
+  const [operator, setOperator] = React.useState("=");
   const sendDataToBackend = async (newHeaders, newData) => {
     const response = await fetch('http://localhost:8000/api/receive-data/', {
       method: 'POST',
@@ -52,6 +57,7 @@ function App() {
       // Get rest of .csv file
       const result_data = parse(text, { header: true });
       setData(existing => [...existing, ...result_data.data]);
+      setOriginalData(existing => [...existing, ...result_data.data]);
       console.log("CSV Data:", result_data)
       // Send data to backend
       sendDataToBackend(result_headers, [...data, ...result_data.data])
@@ -62,6 +68,11 @@ function App() {
   const handleSort = async () => {
     // Make sure a file and column are selected
     if (!file || !selectedColumn) return;
+
+    if (selectedSort == "None") {
+      setData(originalData);
+      return;
+    }
     // Body of post request - with file and column
     const formData = new FormData();
     formData.append("file", file);
@@ -80,45 +91,109 @@ function App() {
 
     // Set displayed data to sorted data if response is successful
     const json = await response.json();
+
+    if (selectedSort == "Decreasing") {
+      json.reverse();
+    }
     setData(json);
   };
+
+  const handleSelect = async () => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("column", selectedColumn2);
+    formData.append("operator", operator);
+    formData.append("value", document.querySelector("input").value);
+    
+    const response = await fetch("http://localhost:8000/api/select-csv/", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      console.error("Select failed:", await response.text());
+      return;
+    }
+
+    const json = await response.json();
+    setData(json);
+  };
+
   return (
         <div>
           <div className={`div1${hover ? " hovered" : ""}`}
-            onDragEnter={() => {
-              setHover(true);
-            }}
-            onDragLeave={() => {
-              setHover(false);
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
-            }}
-            onDrop={
-              handleDrop}>
+            onDragEnter = {() => { setHover(true); }}
+            onDragLeave = {() => { setHover(false); }}
+            onDragOver = {(e) => { e.preventDefault(); }}
+            onDrop = { handleDrop }>
               Drop file here
           </div>
 
           {headers.length > 0 && (
-        <div>
-          <label>Sort by:&nbsp;</label>
-          <select
-            value={selectedColumn}
-            onChange={(e) => setSelectedColumn(e.target.value)}
-          >
-            {headers.map((col) => (
-              <option value={col} key={col}>
-                {col}
-              </option>
-            ))}
-          </select>
+            <div>
+              <div>
+                <label>Sort by: </label>
+                <select
+                  value={selectedColumn}
+                  onChange={(e) => setSelectedColumn(e.target.value)}
+                >
+                  {headers.map((col) => (
+                    <option value={col} key={col}>
+                      {col}
+                    </option>
+                  ))}
+                </select>
 
-          <button onClick={handleSort}>
-            Sort
-          </button>
-        </div>
-      )}
+                <select
+                  value={selectedSort}
+                  onChange={(e) => setSelectedSort(e.target.value)}
+                >
+                  <option value="None">None</option>
+                  <option value="Increasing">Increasing</option>
+                  <option value="Decreasing">Decreasing</option>
+                </select>
 
+                <button onClick={handleSort}>
+                  Go
+                </button>
+              </div>
+              <br></br>
+              <div>
+                <label className="spaced">Select</label>
+                <select
+                  className="spaced"
+                  value={rowOrCol}
+                  onChange={(e) => setRowOrCol(e.target.value)}>
+                  <option value="Row">Row</option>
+                  <option value="Column">Column</option>
+                </select>
+                <p className="inline"> where </p>
+                <select
+                  className="spaced"
+                  value={selectedColumn2}
+                  onChange={(e) => setSelectedColumn2(e.target.value)}
+                >
+                  {headers.map((col) => (
+                    <option value={col} key={col}>
+                      {col}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="spaced"
+                  value={operator}
+                  onChange={(e) => setOperator(e.target.value)}>
+                  <option value="=">=</option>
+                  <option value=">">&lt;</option>
+                  <option value="<">&gt;</option>
+                </select>
+                <input className="spaced"></input>
+                <button onClick={handleSelect}>
+                  Go
+                </button>
+              </div>
+            </div>
+          )}
           <div>
             <table>
               <thead>

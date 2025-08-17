@@ -38,7 +38,7 @@ def sort_csv(request):
     return HttpResponse(payload, content_type="application/json")
 
 @csrf_exempt
-def select_csv(request):
+def select_row(request):
     if request.method != 'POST' or 'file' not in request.FILES:
         return HttpResponseBadRequest("POST with 'file' required")
     
@@ -62,6 +62,22 @@ def select_csv(request):
     print(f"testing: {df_selected}")
     
     records = df_selected.to_dict(orient="records")
-    # Get json payload, ignoring NaN values to avoid errors
+    payload = json.dumps(records, ignore_nan=True)
+    return HttpResponse(payload, content_type="application/json")
+
+@csrf_exempt
+def select_column(request):
+    if request.method != 'POST' or 'file' not in request.FILES:
+        return HttpResponseBadRequest("POST with 'file' required")
+
+    df = pd.read_csv(
+        request.FILES['file'],
+        skipinitialspace=True,
+        na_values=['', 'None', 'NULL', 'n/a', 'NA']
+    )
+
+    df_selected = df[[request.POST.get('column')]]
+
+    records = df_selected.to_dict(orient="records")
     payload = json.dumps(records, ignore_nan=True)
     return HttpResponse(payload, content_type="application/json")
