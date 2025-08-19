@@ -2,7 +2,7 @@
 import './App.css'
 "use client"
 
-import React from "react";
+import React, { useState } from "react";
 import { parse } from "papaparse";
 import {
   getData,
@@ -11,6 +11,7 @@ import {
   getColumn,
   getScatterplot,
 } from "./api/api";
+import Dropbox from "./components/dropbox.jsx";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -119,13 +120,7 @@ function App() {
 
   return (
         <div>
-          <div className={`div1${hover ? " hovered" : ""}`}
-            onDragEnter = {() => { setHover(true); }}
-            onDragLeave = {() => { setHover(false); }}
-            onDragOver = {(e) => { e.preventDefault(); }}
-            onDrop = { handleDrop }>
-              Drop file here
-          </div>
+          <Dropbox onDrop={handleDrop}>Drop file here</Dropbox>
 
           {headers.length > 0 && (
             <>
