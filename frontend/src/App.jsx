@@ -4,6 +4,13 @@ import './App.css'
 
 import React from "react";
 import { parse } from "papaparse";
+import {
+  getData,
+  sortCSV,
+  getRow,
+  getColumn,
+  getScatterplot,
+} from "./api/api";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -55,24 +62,8 @@ function App() {
       setData(originalData);
       return;
     }
-    // Body of post request - with file and column
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("column", selectedColumn);
-    // Fetch and await response (post request to backend)
-    const response = await fetch("http://localhost:8000/api/sort-csv/", {
-      method: "POST",
-      body: formData,
-    });
 
-    // If response fails
-    if (!response.ok) {
-      console.error("Sort failed:", await response.text());
-      return;
-    }
-
-    // Set displayed data to sorted data if response is successful
-    const json = await response.json();
+    let json = await sortCSV(file, selectedColumn)
 
     if (selectedSort == "Decreasing") {
       json.reverse();
@@ -81,40 +72,9 @@ function App() {
   };
 
   const handleSelectRow = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("column", selectedColumn2);
-    formData.append("operator", operator);
-    formData.append("value", document.querySelector("input").value);
-    
-    const response = await fetch("http://localhost:8000/api/select-row/", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      console.error("Select row failed:", await response.text());
-      return;
-    }
-
     setVisibleHeaders(headers);
-    const json = await response.json();
+    let json = await getRow(file, selectedColumn2, operator, document.querySelector("input").value);
     setData(json);
-  };
-
-  const sendDataToBackend = async (newHeaders, newData) => {
-    const response = await fetch('http://localhost:8000/api/receive-data/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: newHeaders,
-        headers: newData,
-      }),
-    });
-    const result = await response.json();
-    console.log(result);
   };
 
   const handleDrop = async (e) => {
@@ -137,51 +97,21 @@ function App() {
       
       console.log("CSV Headers:", result_headers)
       console.log("CSV Data:", result_data)
-      // Send data to backend
-      sendDataToBackend(result_headers, [...data, ...result_data.data])
+      getData(result_headers, [...data, ...result_data.data]);
     }
   };
 
   const handleSelectColumn = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("column", selectedColumn3);
-
-    const response = await fetch("http://localhost:8000/api/select-column/", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      console.error("Select column failed:", await response.text());
-      return;
-    }
-
     setVisibleHeaders([selectedColumn3]);
-    const json = await response.json();
+    const json = await getColumn(file, selectedColumn3)
     setData(json);
   }
 
   const toggleShowScatterplot = () => setShowScatterplot(prev => !prev);
 
   const handleScatterplot = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("x_column", XColumn);
-    formData.append("y_column", YColumn);
-
-    const response = await fetch("http://localhost:8000/api/scatterplot/", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      console.error("Select column failed:", await response.text());
-      return;
-    }
-
     setVisibleHeaders(headers);
-    const json = await response.json();
+    const json = await getScatterplot(file, XColumn, YColumn);
     setScatterplotImage(json.image);
     setShowScatterplot(true);
   }
