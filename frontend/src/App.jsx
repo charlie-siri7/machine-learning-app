@@ -12,6 +12,7 @@ import {
   getScatterplot,
 } from "./api/api";
 import Dropbox from "./components/dropbox.jsx";
+import SortController from "./components/SortController.jsx";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -21,12 +22,12 @@ function App() {
   ]);
   const [headers, setHeaders] = React.useState([]);
   const [file, setFile] = React.useState(null);
-  const [selectedColumn, setSelectedColumn] = React.useState("rowid");
+  // const [selectedColumn, setSelectedColumn] = React.useState("rowid");
   const [selectedColumn2, setSelectedColumn2] = React.useState("rowid");
   const [selectedColumn3, setSelectedColumn3] = React.useState("rowid");
   const [XColumn, setXColumn] = React.useState("rowid");
   const [YColumn, setYColumn] = React.useState("rowid");
-  const [selectedSort, setSelectedSort] = React.useState("None");
+  // const [selectedSort, setSelectedSort] = React.useState("None");
   const [rowOrCol, setRowOrCol] = React.useState("Row");
   const [operator, setOperator] = React.useState("=");
   const [visibleHeaders, setVisibleHeaders] = React.useState(headers);
@@ -35,11 +36,11 @@ function App() {
   const [showScatterplot, setShowScatterplot] = React.useState(false);
 
   // When headers change, default the dropdown to the first column
-  React.useEffect(() => {
-    if (headers.length && !selectedColumn) {
-      setSelectedColumn(headers[0]);
-    }
-  }, [headers, selectedColumn]);
+  // React.useEffect(() => {
+  //   if (headers.length && !selectedColumn) {
+  //     setSelectedColumn(headers[0]);
+  //   }
+  // }, [headers, selectedColumn]);
 
   React.useEffect(() => {
     setVisibleHeaders(headers);
@@ -53,7 +54,7 @@ function App() {
   }, []);
 
   // Call backend to sort CSV by selected column
-  const handleSort = async () => {
+  const handleSort = async ({selectedColumn, selectedSort}) => {
     // Make sure a file and column are selected
     if (!file || !selectedColumn) return;
 
@@ -124,32 +125,7 @@ function App() {
 
           {headers.length > 0 && (
             <>
-              <div>
-                <label>Sort by: </label>
-                <select
-                  value={selectedColumn}
-                  onChange={(e) => setSelectedColumn(e.target.value)}
-                >
-                  {headers.map((col) => (
-                    <option value={col} key={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={selectedSort}
-                  onChange={(e) => setSelectedSort(e.target.value)}
-                >
-                  <option value="None">None</option>
-                  <option value="Increasing">Increasing</option>
-                  <option value="Decreasing">Decreasing</option>
-                </select>
-
-                <button disabled={!ready} onClick={handleSort}>
-                  Go
-                </button>
-              </div>
+              <SortController headers={headers} onSort={handleSort} ready={ready} />
               <br></br>
               <div>
                 <label className="spaced">Select</label>
