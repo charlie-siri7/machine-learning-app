@@ -13,6 +13,7 @@ import {
 } from "./api/api";
 import Dropbox from "./components/dropbox.jsx";
 import SortController from "./components/SortController.jsx";
+import RowSelector from "./components/RowSelector.jsx";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -34,13 +35,6 @@ function App() {
   const [ready, setReady] = React.useState(false);
   const [scatterplotImage, setScatterplotImage] = React.useState(null);
   const [showScatterplot, setShowScatterplot] = React.useState(false);
-
-  // When headers change, default the dropdown to the first column
-  // React.useEffect(() => {
-  //   if (headers.length && !selectedColumn) {
-  //     setSelectedColumn(headers[0]);
-  //   }
-  // }, [headers, selectedColumn]);
 
   React.useEffect(() => {
     setVisibleHeaders(headers);
@@ -73,9 +67,9 @@ function App() {
     setData(json);
   };
 
-  const handleSelectRow = async () => {
+  const handleSelectRow = async ({selectedColumn, operator, value}) => {
     setVisibleHeaders(headers);
-    let json = await getRow(file, selectedColumn2, operator, document.querySelector("input").value);
+    let json = await getRow(file, selectedColumn, operator, value);
     setData(json);
   };
 
@@ -137,32 +131,7 @@ function App() {
                   <option value="Column">Column</option>
                 </select>
                 {rowOrCol == "Row" && (
-                  <>
-                    <p className="inline"> where </p>
-                    <select
-                      className="spaced"
-                      value={selectedColumn2}
-                      onChange={(e) => setSelectedColumn2(e.target.value)}
-                    >
-                      {headers.map((col) => (
-                        <option value={col} key={col}>
-                          {col}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="spaced"
-                      value={operator}
-                      onChange={(e) => setOperator(e.target.value)}>
-                      <option value="=">=</option>
-                      <option value=">">&lt;</option>
-                      <option value="<">&gt;</option>
-                    </select>
-                    <input className="spaced"></input>
-                    <button disabled={!ready} onClick={handleSelectRow}>
-                      Go
-                    </button>
-                  </>
+                    <RowSelector headers={headers} ready={ready} onSelectRow={handleSelectRow} />
                 )}
                 {rowOrCol == "Column" && (
                   <>

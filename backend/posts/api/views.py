@@ -62,9 +62,9 @@ def select_row(request):
 
     df_selected = df[df[request.POST.get('column')] == value]
     if request.POST.get('operator') == '<':
-        df_selected = df[(df[request.POST.get('column')]) > value]
-    elif request.POST.get('operator') == '>':
         df_selected = df[(df[request.POST.get('column')]) < value]
+    elif request.POST.get('operator') == '>':
+        df_selected = df[(df[request.POST.get('column')]) > value]
     print(f"testing: {df_selected}")
     
     records = df_selected.to_dict(orient="records")
