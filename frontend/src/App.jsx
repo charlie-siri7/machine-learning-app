@@ -15,6 +15,7 @@ import Dropbox from "./components/dropbox.jsx";
 import SortController from "./components/SortController.jsx";
 import RowSelector from "./components/RowSelector.jsx";
 import ColumnSelector from "./components/ColumnSelector.jsx";
+import ScatterplotController from "./components/ScatterplotController.jsx";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -24,14 +25,7 @@ function App() {
   ]);
   const [headers, setHeaders] = React.useState([]);
   const [file, setFile] = React.useState(null);
-  // const [selectedColumn, setSelectedColumn] = React.useState("rowid");
-  // const [selectedColumn2, setSelectedColumn2] = React.useState("rowid");
-  // const [selectedColumn3, setSelectedColumn3] = React.useState("rowid");
-  const [XColumn, setXColumn] = React.useState("rowid");
-  const [YColumn, setYColumn] = React.useState("rowid");
-  // const [selectedSort, setSelectedSort] = React.useState("None");
   const [rowOrCol, setRowOrCol] = React.useState("Row");
-  const [operator, setOperator] = React.useState("=");
   const [visibleHeaders, setVisibleHeaders] = React.useState(headers);
   const [ready, setReady] = React.useState(false);
   const [scatterplotImage, setScatterplotImage] = React.useState(null);
@@ -104,15 +98,16 @@ function App() {
     setData(json);
   }
 
-  const toggleShowScatterplot = () => setShowScatterplot(prev => !prev);
+  const toggleShowScatterplot = () => {
+    setShowScatterplot(prev => !prev);
+  };
 
-  const handleScatterplot = async () => {
+  const handleScatterplot = async (XColumn, YColumn) => {
     setVisibleHeaders(headers);
     const json = await getScatterplot(file, XColumn, YColumn);
     setScatterplotImage(json.image);
     setShowScatterplot(true);
   }
-
 
   return (
         <div>
@@ -138,35 +133,7 @@ function App() {
                   <ColumnSelector headers={headers} ready={ready} onSelectColumn={handleSelectColumn} />
                 )}
               </div>
-              <div>
-                <label className="spaced">Generate Scatterplot Comparing</label>
-                <select
-                  value={XColumn}
-                  onChange={(e) => setXColumn(e.target.value)}
-                >
-                  {headers.map((col) => (
-                    <option value={col} key={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={YColumn}
-                  onChange={(e) => setYColumn(e.target.value)}
-                >
-                  {headers.map((col) => (
-                    <option value={col} key={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
-                <button disabled={!ready} onClick={handleScatterplot}>
-                  Generate
-                </button>
-                <button disabled={!ready} onClick={toggleShowScatterplot}>
-                  {showScatterplot ? "Hide" : "Show"}
-                </button>
-              </div>
+                <ScatterplotController ready={ready} onGenerate={handleScatterplot} onToggle={toggleShowScatterplot} headers={headers} showScatterplot={showScatterplot} />
             </>
           )}
           {showScatterplot && scatterplotImage && (

@@ -19,7 +19,7 @@ function RowSelector({
     };
 
     return (
-        <div>
+        <>
             <p className="inline"> where </p>
             <select
                 className="spaced"
@@ -44,10 +44,10 @@ function RowSelector({
                 className="spaced"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}></input>
-            <button disabled={!ready || !value} onClick={handleSelectRow}>
+            <button disabled={!ready || !value} onClick={handleSelectRow} className="spaced">
                 Go
             </button>
-        </div>
+        </>
     );
 }
 

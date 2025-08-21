@@ -29,7 +29,7 @@ function ColumnSelector({
                 </option>
                 ))}
             </select>
-            <button disabled={!ready} onClick={handleSelectColumn}>
+            <button disabled={!ready} onClick={handleSelectColumn} className="spaced">
                 Go
             </button>
         </>

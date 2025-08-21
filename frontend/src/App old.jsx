@@ -13,6 +13,8 @@ import {
 } from "./api/api";
 import Dropbox from "./components/dropbox.jsx";
 import SortController from "./components/SortController.jsx";
+import RowSelector from "./components/RowSelector.jsx";
+import ColumnSelector from "./components/ColumnSelector.jsx";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -23,13 +25,13 @@ function App() {
   const [headers, setHeaders] = React.useState([]);
   const [file, setFile] = React.useState(null);
   // const [selectedColumn, setSelectedColumn] = React.useState("rowid");
-  const [selectedColumn2, setSelectedColumn2] = React.useState("rowid");
-  const [selectedColumn3, setSelectedColumn3] = React.useState("rowid");
+  // const [selectedColumn2, setSelectedColumn2] = React.useState("rowid");
+  // const [selectedColumn3, setSelectedColumn3] = React.useState("rowid");
   const [XColumn, setXColumn] = React.useState("rowid");
   const [YColumn, setYColumn] = React.useState("rowid");
   // const [selectedSort, setSelectedSort] = React.useState("None");
   const [rowOrCol, setRowOrCol] = React.useState("Row");
-  const [operator, setOperator] = React.useState("=");
+  // const [operator, setOperator] = React.useState("=");
   const [visibleHeaders, setVisibleHeaders] = React.useState(headers);
   const [ready, setReady] = React.useState(false);
   const [scatterplotImage, setScatterplotImage] = React.useState(null);
@@ -66,9 +68,9 @@ function App() {
     setData(json);
   };
 
-  const handleSelectRow = async () => {
+  const handleSelectRow = async ({selectedColumn, operator, value}) => {
     setVisibleHeaders(headers);
-    let json = await getRow(file, selectedColumn2, operator, document.querySelector("input").value);
+    let json = await getRow(file, selectedColumn, operator, value);
     setData(json);
   };
 
@@ -96,9 +98,9 @@ function App() {
     }
   };
 
-  const handleSelectColumn = async () => {
-    setVisibleHeaders([selectedColumn3]);
-    const json = await getColumn(file, selectedColumn3)
+  const handleSelectColumn = async ({selectedColumn}) => {
+    setVisibleHeaders([selectedColumn]);
+    const json = await getColumn(file, selectedColumn)
     setData(json);
   }
 
@@ -130,50 +132,10 @@ function App() {
                   <option value="Column">Column</option>
                 </select>
                 {rowOrCol == "Row" && (
-                  <>
-                    <p className="inline"> where </p>
-                    <select
-                      className="spaced"
-                      value={selectedColumn2}
-                      onChange={(e) => setSelectedColumn2(e.target.value)}
-                    >
-                      {headers.map((col) => (
-                        <option value={col} key={col}>
-                          {col}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="spaced"
-                      value={operator}
-                      onChange={(e) => setOperator(e.target.value)}>
-                      <option value="=">=</option>
-                      <option value=">">&lt;</option>
-                      <option value="<">&gt;</option>
-                    </select>
-                    <input className="spaced"></input>
-                    <button disabled={!ready} onClick={handleSelectRow}>
-                      Go
-                    </button>
-                  </>
+                  <RowSelector headers={headers} ready={ready} onSelectRow={handleSelectRow} />
                 )}
                 {rowOrCol == "Column" && (
-                  <>
-                    <select
-                      className="spaced"
-                      value={selectedColumn3}
-                      onChange={(e) => setSelectedColumn3(e.target.value)}
-                    >
-                      {headers.map((col) => (
-                        <option value={col} key={col}>
-                          {col}
-                        </option>
-                      ))}
-                    </select>
-                    <button disabled={!ready} onClick={handleSelectColumn}>
-                      Go
-                    </button>
-                  </>
+                  <ColumnSelector headers={headers} ready={ready} onSelectColumn={handleSelectColumn} />
                 )}
               </div>
               <div>
