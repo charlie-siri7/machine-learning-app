@@ -16,6 +16,7 @@ import SortController from "./components/SortController.jsx";
 import RowSelector from "./components/RowSelector.jsx";
 import ColumnSelector from "./components/ColumnSelector.jsx";
 import ScatterplotController from "./components/ScatterplotController.jsx";
+import DataTable from "./components/DataTable.jsx";
 
 function App() {
   const [hover, setHover] = React.useState(false);
@@ -143,26 +144,7 @@ function App() {
               style={{ maxWidth: "100%", height: "auto", marginTop: 20 }}
             />
           )}
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  {visibleHeaders.map((header_index) => (
-                    <th key={header_index}>{header_index}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((row, row_index) => (
-                  <tr key={row_index}>
-                    {visibleHeaders.map(header_index => (
-                      <td key={header_index}>{row[header_index]}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable visibleHeaders={visibleHeaders} data={data} />
         </div>
   );
 }
