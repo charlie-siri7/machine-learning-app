@@ -27,10 +27,12 @@ function App() {
   const [headers, setHeaders] = React.useState([]);
   const [file, setFile] = React.useState(null);
   const [rowOrCol, setRowOrCol] = React.useState("Row");
+  const [datasetsToPredict, setDatasetsToPredict] = React.useState("1");
   const [visibleHeaders, setVisibleHeaders] = React.useState(headers);
   const [ready, setReady] = React.useState(false);
   const [scatterplotImage, setScatterplotImage] = React.useState(null);
   const [showScatterplot, setShowScatterplot] = React.useState(false);
+  const [selectedColumn, setSelectedColumn] = React.useState("rowid");
 
   React.useEffect(() => {
     setVisibleHeaders(headers);
@@ -134,7 +136,39 @@ function App() {
                   <ColumnSelector headers={headers} ready={ready} onSelectColumn={handleSelectColumn} />
                 )}
               </div>
-                <ScatterplotController ready={ready} onGenerate={handleScatterplot} onToggle={toggleShowScatterplot} headers={headers} showScatterplot={showScatterplot} />
+              <ScatterplotController ready={ready} onGenerate={handleScatterplot} onToggle={toggleShowScatterplot} headers={headers} showScatterplot={showScatterplot} />
+
+              <div>
+                <label>Predict </label>
+                <select
+                    value={selectedColumn}
+                    onChange={e => setSelectedColumn(e.target.value)}
+                >
+                    {headers.map((col) => (
+                    <option value={col} key={col}>
+                        {col}
+                    </option>
+                    ))}
+                </select>
+                <label> by </label>
+                <select
+                  value={datasetsToPredict}
+                  onChange={(e) => setDatasetsToPredict(e.target.value)}>
+                  <option value="1">1 Dataset (the current one)</option>
+                  <option value="2">2 Datasets</option>
+                </select>
+                <div>
+                  {datasetsToPredict == "2" && (
+                    <span className="dropbox-row">
+                      <Dropbox onDrop={handleDrop}>Add Training Dataset Here</Dropbox>
+                      <Dropbox onDrop={handleDrop}>Add Testing Dataset Here</Dropbox>
+                    </span>
+                  )}
+                  <button>
+                  Go
+                </button>
+                </div>
+            </div>
             </>
           )}
           {showScatterplot && scatterplotImage && (

@@ -63,3 +63,13 @@
 .spaced {
   margin: 5px;
 }
+
+.dropbox-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropbox-row .div1 {
+  margin: 5px;
+}
